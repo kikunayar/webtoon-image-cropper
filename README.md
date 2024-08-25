@@ -5,8 +5,9 @@ Invoke-WebRequest -Uri "https://raw.githubusercontent.com/kikunayar/webtoon-imag
 ```
 **USAGE EXAMPLE** 
 ```
-python -c "from cropper import cropper; cropper(r'C:\Users\hunte\Desktop\cropp',r'C:\Users\hunte\Desktop\manga')"
+python -c "from cropper import cropper; cropper(r'C:\Users\hunte\Desktop\manga',r'C:\Users\hunte\Desktop\cropp')"
 
 ```
-- input directory = r'C:\Users\hunte\Desktop\cropp'
 - out directory = r'C:\Users\hunte\Desktop\manga'
+- input directory = r'C:\Users\hunte\Desktop\cropp'
+
