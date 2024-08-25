@@ -1,19 +1,25 @@
 import cv2
-import os
 import numpy as np
+from pathlib import Path
 
 def cropper(folder_path, out_path):
+    folder_path = Path(folder_path)
+    out_path = Path(out_path)
+    
+    # Create output directory if it does not exist
+    out_path.mkdir(parents=True, exist_ok=True)
+
     # Get the list of files in the folder
-    od = os.listdir(folder_path)
+    od = list(folder_path.glob('*.[jp][pn]g'))
     maskedimg = []
     fullsizeimg = []
 
     # Process each image file
-    for file in od:
-        img_path = os.path.join(folder_path, file)
-        
-        if img_path.endswith(".jpg") or img_path.endswith(".png"):
-            img = cv2.imread(img_path)
+    for img_path in od:
+        if img_path.suffix.lower() in [".jpg", ".png"]:
+            img = cv2.imread(str(img_path))
+            if img is None:
+                continue
             fullsizeimg.append(img)
             h, w = img.shape[:2]
             img = cv2.resize(img, (w, h))
@@ -21,9 +27,9 @@ def cropper(folder_path, out_path):
             # Apply masking
             for i in range(h):
                 if np.all(img[i, :] == [255, 255, 255]):
-                    img[i, :] = [255, 0, 0]
+                    img[i, :] = [255, 0, 0]  # Change white to red
                 else:
-                    img[i, :] = [0, 0, 255]
+                    img[i, :] = [0, 0, 255]  # Change non-white to blue
             img = cv2.resize(img, (1, h))
             maskedimg.append(img)
 
@@ -70,12 +76,14 @@ def cropper(folder_path, out_path):
     pixels = modified_image.reshape(-1, 3) 
     start_end_ranges = find_start_end(pixels, (0, 0, 255))
 
-    h, w = combined_fullsizeimg.shape[:2]
+    if fullsizeimg:
+        h, w = combined_fullsizeimg.shape[:2]
 
     # Save cropped images
     for idx, (start, end, _) in enumerate(start_end_ranges):
         cropped_img = combined_fullsizeimg[start:end + 1, :]  # Crop the image
-        cropped_img_path = os.path.join(out_path, f"cropped_image_{idx}.png")
-        cv2.imwrite(cropped_img_path, cropped_img)
+        cropped_img_path = out_path / f"cropped_image_{idx}.png"
+        cv2.imwrite(str(cropped_img_path), cropped_img)
         print(f"Cropped image saved to: {cropped_img_path}")
+
 
